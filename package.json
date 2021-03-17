@@ -1,0 +1,38 @@
+{
+  "name": "fig",
+  "version": "0.1.0",
+  "description": "Command line utility that generates features images for blog posts",
+  "main": "dist/src/fig-cli.js",
+  "bin": {
+     "fig-cli": "dist/src/fig-cli.js"
+   },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc --build",
+    "start": "tsc --build && node dist/fig-cli.js --title Hello World --author Evan Halley --date 2021-03-20 --html-template /Users/evan/source/fig/template/template.html --author-image /Users/evan/source/fig/template/author.jpg --css /Users/evan/source/fig/template/style.css -o /Users/evan/Desktop/test.png -v"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/evanhalley/fig.git"
+  },
+  "keywords": [
+    "nodejs",
+    "typescript",
+    "puppeteer"
+  ],
+  "author": "Evan Halley - evan.halley@gmail.com",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/evanhalley/fig/issues"
+  },
+  "homepage": "https://github.com/evanhalley/fig#readme",
+  "dependencies": {
+    "@types/puppeteer": "^5.4.3",
+    "@typescript-eslint/eslint-plugin": "^4.18.0",
+    "@typescript-eslint/parser": "^4.18.0",
+    "commander": "^7.1.0",
+    "moment": "^2.29.1",
+    "puppeteer": "^8.0.0",
+    "slugify": "^1.4.7"
+  }
+}
