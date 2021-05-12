@@ -1,11 +1,12 @@
 {
-  "name": "fig",
-  "version": "0.1.0",
+  "name": "@evanhalley/fig",
+  "version": "0.2.2",
   "description": "Command line utility that generates features images for blog posts",
   "main": "dist/src/fig-cli.js",
+  "types": "dist/src/fig.d.ts",
   "bin": {
-     "fig-cli": "dist/src/fig-cli.js"
-   },
+    "fig-cli": "dist/src/fig-cli.js"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc --build",
@@ -20,8 +21,8 @@
     "typescript",
     "puppeteer"
   ],
-  "author": "Evan Halley - evan.halley@gmail.com",
-  "license": "ISC",
+  "author": "Evan Halley - (https://evanhalley.dev/me)",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/evanhalley/fig/issues"
   },
