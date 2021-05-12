@@ -6,6 +6,9 @@ Fig (Feature Image Generator) is a tool that I use to generate feature images fo
 
 This project has just gotten started and is therefore very light on documentation at the moment.  
 
+## Install
+
+Run `npm install @evanhalley/fig` to install.
 ## Setup
 
 You must have Nodejs installed to execute `fig-cli`.
