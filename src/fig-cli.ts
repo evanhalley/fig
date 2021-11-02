@@ -1,15 +1,24 @@
 #!/usr/bin/env node
 
-import { Command, OptionValues } from 'commander';
+import { Command } from 'commander';
 import { Fig } from './fig';
 import { Level, Logger } from './logger';
 import { version } from '../package.json';
 
 const program = new Command();
+program.version(version)
+    .description('Fig is a utility that generates feature images for website articles. The images can be used for sharing the article on social media.');
 
-program.name('fig-cli')
-    .version(version)
-    .description('Fig is a utility that generates feature images for website articles. The images can be used for sharing the article on social media.')
+program
+    .command('md <input>')
+    .description('Generates an image by parsing metadata from the frontmatter in a Markdown file')
+    .option('-o, --output <name and path to output>', 'Name and path of the output file, append with .jpg or .png')
+    .option('-v, --verbose', 'Turns on verbose logging')
+    .action((input, options) => processMarkdownInput(input, options));
+
+program
+    .command('args')
+    .description('Generates an image using the options specified')
     .requiredOption('-t, --title <title>', 'Article\'s title')
     .requiredOption('-d, --date <date>', 'Article\'s published Date')
     .requiredOption('-a, --author <author>', 'Article\'s Author\'s name')
@@ -18,20 +27,31 @@ program.name('fig-cli')
     .requiredOption('-c, --css <path to CSS file>', 'Path to CSS to use for your feature image')
     .option('-o, --output <name and path to output>', 'Name and path of the output file, append with .jpg or .png')
     .option('-v, --verbose', 'Turns on verbose logging')
+    .action((options) => processArgumentInput(options));
 
 program.parse(process.argv);
 
-const options: OptionValues = program.opts();
-const logLevel: Level = options.verbose ? Level.ALL : Level.INFO;
-const fig: Fig = new Fig(logLevel);
-const logger = new Logger(logLevel);
+function processArgumentInput(options) {
+    const logLevel: Level = options.verbose ? Level.ALL : Level.INFO;
+    const fig: Fig = new Fig(logLevel);
+    const logger = new Logger(logLevel);
+    logger.debug(options);
 
-logger.debug(JSON.stringify(options));
-fig.generateImage({
-    title: options.title,
-    date: options.date,
-    author: options.author,
-    pathToAuthorImage: options.authorImage,
-    pathToHtmlTemplate: options.htmlTemplate,
-    pathToCss: options.css,
-    output: options.output});
+    fig.generateImage({
+        title: options.title,
+        date: options.date,
+        author: options.author,
+        pathToAuthorImage: options.authorImage,
+        pathToHtmlTemplate: options.htmlTemplate,
+        pathToCss: options.css,
+        output: options.output,
+        file: null});
+}
+
+function processMarkdownInput(input, options) {
+    const logLevel: Level = options.verbose ? Level.ALL : Level.INFO;
+    const fig: Fig = new Fig(logLevel);
+    const logger = new Logger(logLevel);
+    logger.debug(input);
+    logger.debug(options);
+}

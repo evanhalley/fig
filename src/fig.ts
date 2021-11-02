@@ -114,5 +114,6 @@ export interface Options {
     pathToAuthorImage: string;
     pathToHtmlTemplate: string;
     pathToCss: string;
+    file: string;
     output: string
 }
