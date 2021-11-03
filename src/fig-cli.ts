@@ -4,14 +4,15 @@ import { Command } from 'commander';
 import { Fig } from './fig';
 import { Level, Logger } from './logger';
 import { version } from '../package.json';
+import { FmParser, Metadata } from './fm-parser';
 
 const program = new Command();
 program.version(version)
     .description('Fig is a utility that generates feature images for website articles. The images can be used for sharing the article on social media.');
 
 program
-    .command('md <input>')
-    .description('Generates an image by parsing metadata from the frontmatter in a Markdown file')
+    .command('fm <input>')
+    .description('Generates an image by parsing metadata from the frontmatter in the input file')
     .option('-o, --output <name and path to output>', 'Name and path of the output file, append with .jpg or .png')
     .option('-v, --verbose', 'Turns on verbose logging')
     .action((input, options) => processMarkdownInput(input, options));
@@ -44,14 +45,17 @@ function processArgumentInput(options) {
         pathToAuthorImage: options.authorImage,
         pathToHtmlTemplate: options.htmlTemplate,
         pathToCss: options.css,
-        output: options.output,
-        file: null});
+        output: options.output
+    });
 }
 
 function processMarkdownInput(input, options) {
     const logLevel: Level = options.verbose ? Level.ALL : Level.INFO;
     const fig: Fig = new Fig(logLevel);
     const logger = new Logger(logLevel);
+    const fmParser: FmParser = new FmParser(logLevel);
+    const metadata: Metadata = fmParser.parse(input);
     logger.debug(input);
     logger.debug(options);
+    logger.debug(JSON.stringify(metadata));
 }

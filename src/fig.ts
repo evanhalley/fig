@@ -4,7 +4,7 @@ import moment from 'moment';
 import slugify from 'slugify';
 import puppeteer from 'puppeteer';
 import { Browser, Page, Viewport } from 'puppeteer';
-import {Logger, Level } from './logger';
+import { Logger, Level } from './logger';
 
 export class Fig {
 
@@ -114,6 +114,5 @@ export interface Options {
     pathToAuthorImage: string;
     pathToHtmlTemplate: string;
     pathToCss: string;
-    file: string;
     output: string
 }
