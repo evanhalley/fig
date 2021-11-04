@@ -15,7 +15,10 @@ program
     .description('Generates an image by parsing metadata from the frontmatter in the input file')
     .option('-o, --output <name and path to output>', 'Name and path of the output file, append with .jpg or .png')
     .option('-v, --verbose', 'Turns on verbose logging')
-    .action((input, options) => processMarkdownInput(input, options));
+    .option('-h, --html-template <path to HTML file>', 'Path to HTML template for your feature image')
+    .option('-i, --author-image <path to image>', 'Path to article\'s author\'s image')
+    .option('-c, --css <path to CSS file>', 'Path to CSS to use for your feature image')
+    .action((input, options) => processFrontmatterInput(input, options));
 
 program
     .command('args')
@@ -23,22 +26,22 @@ program
     .requiredOption('-t, --title <title>', 'Article\'s title')
     .requiredOption('-d, --date <date>', 'Article\'s published Date')
     .requiredOption('-a, --author <author>', 'Article\'s Author\'s name')
-    .requiredOption('-h, --html-template <path to HTML file>', 'Path to HTML template for your feature image')
-    .requiredOption('-i, --author-image <path to image>', 'Path to article\'s author\'s image')
-    .requiredOption('-c, --css <path to CSS file>', 'Path to CSS to use for your feature image')
+    .option('-h, --html-template <path to HTML file>', 'Path to HTML template for your feature image')
+    .option('-i, --author-image <path to image>', 'Path to article\'s author\'s image')
+    .option('-c, --css <path to CSS file>', 'Path to CSS to use for your feature image')
     .option('-o, --output <name and path to output>', 'Name and path of the output file, append with .jpg or .png')
     .option('-v, --verbose', 'Turns on verbose logging')
     .action((options) => processArgumentInput(options));
 
 program.parse(process.argv);
 
-function processArgumentInput(options) {
+async function processArgumentInput(options: any) {
     const logLevel: Level = options.verbose ? Level.ALL : Level.INFO;
     const fig: Fig = new Fig(logLevel);
     const logger = new Logger(logLevel);
     logger.debug(options);
 
-    fig.generateImage({
+    const result: string = await fig.generateImage({
         title: options.title,
         date: options.date,
         author: options.author,
@@ -47,15 +50,37 @@ function processArgumentInput(options) {
         pathToCss: options.css,
         output: options.output
     });
+    handleResult(logger, result);
 }
 
-function processMarkdownInput(input, options) {
+async function processFrontmatterInput(input: string, options: any) {
     const logLevel: Level = options.verbose ? Level.ALL : Level.INFO;
     const fig: Fig = new Fig(logLevel);
     const logger = new Logger(logLevel);
     const fmParser: FmParser = new FmParser(logLevel);
     const metadata: Metadata = fmParser.parse(input);
+
     logger.debug(input);
     logger.debug(options);
     logger.debug(JSON.stringify(metadata));
+
+    const result: string = await fig.generateImage({
+        title: metadata.title,
+        date: metadata.date,
+        author: metadata.author,
+        pathToAuthorImage: options.authorImage,
+        pathToHtmlTemplate: options.htmlTemplate,
+        pathToCss: options.css,
+        output: options.output
+    });
+    handleResult(logger, result);
+}
+
+function handleResult(logger: Logger, result: string) {
+
+    if (result) {
+        logger.info(`Feature image generated successfully: ${result}`);
+    } else {
+        logger.info(`Feature image failed to generate, please check errors!`);
+    }
 }

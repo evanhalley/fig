@@ -14,9 +14,13 @@ export class FmParser {
         const content = this.loadFileContents(file);
 
         if (!content) {
-            return null;
+            throw new Error(`File ${file} failed to load!`);
         }
         let parsed = matter(content).data;
+
+        if (!parsed) {
+            throw new Error('Frontmatter parsing failed!');
+        }
         this.logger.debug(`Frontmatter data: ${JSON.stringify(parsed)}`);
 
         return {
