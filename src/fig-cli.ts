@@ -15,7 +15,7 @@ program
     .description('Generates an image by parsing metadata from the frontmatter in the input file')
     .option('-o, --output <name and path to output>', 'Name and path of the output file, append with .jpg or .png')
     .option('-v, --verbose', 'Turns on verbose logging')
-    .option('-h, --html-template <path to HTML file>', 'Path to HTML template for your feature image')
+    .option('-h, --html-template <path to the folder containing index.html>', 'Path to index.html template used to generate your feature image')
     .action((input, options) => processFrontmatterInput(input, options));
 
 program
@@ -24,7 +24,7 @@ program
     .requiredOption('-t, --title <title>', 'Article\'s title')
     .requiredOption('-d, --date <date>', 'Article\'s published Date')
     .requiredOption('-a, --author <author>', 'Article\'s Author\'s name')
-    .option('-h, --html-template <path to HTML file>', 'Path to HTML template for your feature image')
+    .option('-h, --html-template <path to the folder containing index.html>', 'Path to index.html template used to generate your feature image')
     .option('-o, --output <name and path to output>', 'Name and path of the output file, append with .jpg or .png')
     .option('-v, --verbose', 'Turns on verbose logging')
     .action((options) => processArgumentInput(options));
