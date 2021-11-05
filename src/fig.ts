@@ -93,8 +93,11 @@ export class Fig {
 
     private makeDirectory(directory: string) {
         try {
-            this.logger.debug(`Making directory: ${directory}`);
-            fs.ensureDirSync(`${directory}`);
+        
+            if (!fs.existsSync(directory)) {
+                this.logger.debug(`Making directory: ${directory}`);
+                fs.mkdirSync(directory);
+            }
         } catch (e) {
             this.logger.debug(e);
         }
@@ -102,8 +105,11 @@ export class Fig {
 
     private deleteDirectory(directory: string) {
         try {
-            this.logger.debug(`Deleting directory: ${directory}`);
-            fs.removeSync(directory);
+
+            if (fs.existsSync(directory)) {
+                this.logger.debug(`Deleting directory: ${directory}`);
+                fs.rmSync(directory, { recursive: true, force: true });
+            }
         } catch (e) {
             this.logger.debug(e);
         }

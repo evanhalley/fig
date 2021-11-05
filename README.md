@@ -9,9 +9,10 @@ This project has just gotten started and is therefore very light on documentatio
 ## Install
 
 Run `npm install @evanhalley/fig` to install.
+
 ## Setup
 
-You must have Nodejs installed to execute `fig-cli`.
+You must have Nodejs v14.14+ installed to execute `fig-cli`.
 
 1. Clone this repository.
 
