@@ -7,6 +7,7 @@ import { version } from '../package.json';
 import { FmParser, Metadata } from './fm-parser';
 
 const program = new Command();
+
 program.version(version)
     .description('Fig is a utility that generates feature images for website articles. The images can be used for sharing the article on social media.');
 
@@ -21,9 +22,9 @@ program
 program
     .command('args')
     .description('Generates an image using the options specified')
-    .requiredOption('-t, --title <title>', 'Article\'s title')
-    .requiredOption('-d, --date <date>', 'Article\'s published Date')
-    .requiredOption('-a, --author <author>', 'Article\'s Author\'s name')
+    .requiredOption('-t, --title <title>', 'Title of the article')
+    .requiredOption('-d, --date <date>', 'Date the article was published')
+    .requiredOption('-a, --author <author>', 'Author of the article')
     .option('-h, --html-template <path to the folder containing index.html>', 'Path to index.html template used to generate your feature image')
     .option('-o, --output <name and path to output>', 'Name and path of the output file, append with .jpg or .png')
     .option('-v, --verbose', 'Turns on verbose logging')

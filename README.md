@@ -2,17 +2,17 @@
 
 ![Fig logo](./fig.png)
 
-Fig (Feature Image Generator) is a tool that I use to generate feature images for my website's blog [evanhalley.dev](evanhalley.dev).  Features images are useful when you need to attach an image to a social media post sharing an article you wrote.
+Fig (Feature Image Generator) is a tool that I use to generate feature images for my website's blog [evanhalley.dev](evanhalley.dev).  Feature images are useful when you need to attach an image to a social media post sharing an article you wrote.
 
 This project has just gotten started and is therefore very light on documentation at the moment.  
 
 ## Install
 
+You must have Nodejs v14.14+ installed to execute `fig-cli`.
+
 Run `npm install @evanhalley/fig` to install.
 
 ## Setup
-
-You must have Nodejs v14.14+ installed to execute `fig-cli`.
 
 1. Clone this repository.
 
@@ -39,8 +39,8 @@ Generates an image using the options specified
 
 Options:
   -t, --title <title>                                             Article's title
-  -d, --date <date>                                               Article's published Date
-  -a, --author <author>                                           Article's Author's name
+  -d, --date <date>                                               Article's published date
+  -a, --author <author>                                           Article's author's name
   -h, --html-template <path to the folder containing index.html>  Path to index.html template used to generate your feature image
   -o, --output <name and path to output>                          Name and path of the output file, append with .jpg or .png
   -v, --verbose                                                   Turns on verbose logging
