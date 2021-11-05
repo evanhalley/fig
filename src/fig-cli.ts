@@ -16,8 +16,6 @@ program
     .option('-o, --output <name and path to output>', 'Name and path of the output file, append with .jpg or .png')
     .option('-v, --verbose', 'Turns on verbose logging')
     .option('-h, --html-template <path to HTML file>', 'Path to HTML template for your feature image')
-    .option('-i, --author-image <path to image>', 'Path to article\'s author\'s image')
-    .option('-c, --css <path to CSS file>', 'Path to CSS to use for your feature image')
     .action((input, options) => processFrontmatterInput(input, options));
 
 program
@@ -27,8 +25,6 @@ program
     .requiredOption('-d, --date <date>', 'Article\'s published Date')
     .requiredOption('-a, --author <author>', 'Article\'s Author\'s name')
     .option('-h, --html-template <path to HTML file>', 'Path to HTML template for your feature image')
-    .option('-i, --author-image <path to image>', 'Path to article\'s author\'s image')
-    .option('-c, --css <path to CSS file>', 'Path to CSS to use for your feature image')
     .option('-o, --output <name and path to output>', 'Name and path of the output file, append with .jpg or .png')
     .option('-v, --verbose', 'Turns on verbose logging')
     .action((options) => processArgumentInput(options));
@@ -45,9 +41,7 @@ async function processArgumentInput(options: any) {
         title: options.title,
         date: options.date,
         author: options.author,
-        pathToAuthorImage: options.authorImage,
-        pathToHtmlTemplate: options.htmlTemplate,
-        pathToCss: options.css,
+        pathToTemplate: options.htmlTemplate,
         output: options.output
     });
     handleResult(logger, result);
@@ -68,9 +62,7 @@ async function processFrontmatterInput(input: string, options: any) {
         title: metadata.title,
         date: metadata.date,
         author: metadata.author,
-        pathToAuthorImage: options.authorImage,
-        pathToHtmlTemplate: options.htmlTemplate,
-        pathToCss: options.css,
+        pathToTemplate: options.htmlTemplate,
         output: options.output
     });
     handleResult(logger, result);

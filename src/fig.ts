@@ -1,4 +1,5 @@
 import fs from 'fs';
+import copyDir from 'copy-dir';
 import os from 'os';
 import path from 'path';
 import moment from 'moment';
@@ -10,12 +11,9 @@ import { Logger, Level } from './logger';
 export class Fig {
 
     readonly DEFAULT_TEMPLATE_DIR = '.fig/template';
-    readonly DEFAULT_HTML_TEMPLATE = 'template.html';
-    readonly DEFAULT_CSS_TEMPLATE = 'style.css';
-    readonly DEFAULT_AUTHOR_IMAGE = 'author.jpg';
+    readonly DEFAULT_HTML_TEMPLATE = 'index.html';
     readonly DEFAULT_OUTPUT_FORMAT = 'jpg';
     readonly TEMP_DIRECTORY: string = 'tmp';
-    readonly OUTPUT_DIRECTORY: string = 'out';
     readonly VIEWPORT: Viewport = {
         width: 1200,
         height: 600,
@@ -28,16 +26,17 @@ export class Fig {
         this.logger = new Logger(logLevel);
     }
 
-    async generateImage({ title, date, author, pathToAuthorImage, pathToHtmlTemplate, pathToCss, output }: Options): Promise<string> {
-        
-        try {
-            this.makeDirectory(`${__dirname}/${this.TEMP_DIRECTORY}`);
-            const defaultDir = `${this.getHomeDirectory()}/${this.DEFAULT_TEMPLATE_DIR}`;
-            const htmlTemplateFile = this.copyResourceToTmp(pathToHtmlTemplate, `${defaultDir}/${this.DEFAULT_HTML_TEMPLATE}`);
-            const authorImageFile = this.copyResourceToTmp(pathToAuthorImage, `${defaultDir}/${this.DEFAULT_AUTHOR_IMAGE}`);
-            const cssFile = this.copyResourceToTmp(pathToCss, `${defaultDir}/${this.DEFAULT_CSS_TEMPLATE}`);
+    async generateImage({ title, date, author, pathToTemplate, output }: Options): Promise<string> {
+        const tempDir = `${__dirname}/${this.TEMP_DIRECTORY}`;
 
-            const html = this.buildHtml(htmlTemplateFile, authorImageFile, cssFile, title, date, author);
+        try {
+            this.deleteDirectory(tempDir);
+            this.makeDirectory(tempDir);
+            const defaultDir = `${this.getHomeDirectory()}/${this.DEFAULT_TEMPLATE_DIR}`;
+            const pathToTmpTemplate = this.copyResourceToTmp(pathToTemplate, defaultDir);
+            const pathToTmpHtmlTemplate = `${pathToTmpTemplate}/${this.DEFAULT_HTML_TEMPLATE}`;
+
+            const html = this.buildHtml(pathToTmpHtmlTemplate, title, date, author);
             const titleSlug = `${slugify(title, { replacement: '_', remove: /[*+~.()'"!?:@]/g, lower: true })}`;    
             const htmlFile = this.writeResourceToTmp(titleSlug, html);
             const outputDirectory = this.getOutpuDirectory(output);
@@ -48,6 +47,8 @@ export class Fig {
         } catch (e) {
             this.logger.error(`Error generating image: ${e}`);
             return null;
+        } finally {
+            this.deleteDirectory(tempDir);
         }
     }
 
@@ -67,10 +68,10 @@ export class Fig {
 
         if (outputFile) {
             output = path.dirname(outputFile);
+            this.makeDirectory(output);
         } else {
-            output = `${__dirname}/${this.OUTPUT_DIRECTORY}`;
+            output = process.cwd();
         }
-        this.makeDirectory(output);
         return output;
     }
 
@@ -93,7 +94,16 @@ export class Fig {
     private makeDirectory(directory: string) {
         try {
             this.logger.debug(`Making directory: ${directory}`);
-            fs.mkdirSync(`${directory}`);
+            fs.ensureDirSync(`${directory}`);
+        } catch (e) {
+            this.logger.debug(e);
+        }
+    }
+
+    private deleteDirectory(directory: string) {
+        try {
+            this.logger.debug(`Deleting directory: ${directory}`);
+            fs.removeSync(directory);
         } catch (e) {
             this.logger.debug(e);
         }
@@ -103,12 +113,13 @@ export class Fig {
         return os.homedir();
     }
 
-    private copyResourceToTmp(pathToFile: string, defaultPathToFile: string): string {
-        const file = pathToFile != null ? pathToFile : defaultPathToFile;
-        const pathToTempFile: string = `${__dirname}/${this.TEMP_DIRECTORY}/${path.basename(file)}`;
-        this.logger.debug(`Copying ${file} to ${pathToTempFile}`);
-        fs.copyFileSync(file, pathToTempFile);
-        return pathToTempFile;
+    private copyResourceToTmp(specifiedPath: string, defaultPath: string): string {
+        const path = specifiedPath != null ? specifiedPath + '/' : defaultPath + '/';
+        const pathToTempDir: string = `${__dirname}/${this.TEMP_DIRECTORY}/`;
+        this.logger.debug(`Copying ${path} to ${pathToTempDir}`);
+        copyDir.sync(path, pathToTempDir);
+        //fs.copyFileSync(path, pathToTempDir);
+        return pathToTempDir;
     }
 
     private writeResourceToTmp(filename: string, data: string): string {
@@ -117,10 +128,10 @@ export class Fig {
         return pathToTempFile;
     }
 
-    private buildHtml(htmlFile: string, authorImageFile: string, cssFile: string, title: string, dateStr: string, 
+    private buildHtml(htmlFile: string, title: string, dateStr: string, 
         author: string): string {
         const date = moment(dateStr);
-        const html = fs.readFileSync(`${htmlFile}`).toString()
+        const html = fs.readFileSync(htmlFile).toString()
             .replace('[[TITLE]]', title)
             .replace('[[AUTHOR]]', author)
             .replace('[[DATE]]', date.format('MMM Do'));
@@ -132,8 +143,6 @@ export interface Options {
     title: string;
     date: string;
     author: string;
-    pathToAuthorImage: string;
-    pathToHtmlTemplate: string;
-    pathToCss: string;
+    pathToTemplate: string;
     output: string
 }
