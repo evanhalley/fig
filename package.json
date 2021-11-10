@@ -28,12 +28,18 @@
   },
   "homepage": "https://github.com/evanhalley/fig#readme",
   "dependencies": {
-    "@types/puppeteer": "^5.4.3",
+    "@types/puppeteer": "^5.4.4",
     "@typescript-eslint/eslint-plugin": "^4.18.0",
     "@typescript-eslint/parser": "^4.18.0",
     "commander": "^7.1.0",
+    "copy-dir": "^1.3.0",
+    "fs-extra": "^10.0.0",
+    "gray-matter": "^4.0.3",
     "moment": "^2.29.1",
-    "puppeteer": "^8.0.0",
+    "puppeteer": "^10.4.0",
     "slugify": "^1.4.7"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^9.0.13"
   }
 }

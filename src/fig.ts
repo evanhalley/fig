@@ -1,15 +1,19 @@
 import fs from 'fs';
+import copyDir from 'copy-dir';
+import os from 'os';
 import path from 'path';
 import moment from 'moment';
 import slugify from 'slugify';
 import puppeteer from 'puppeteer';
 import { Browser, Page, Viewport } from 'puppeteer';
-import {Logger, Level } from './logger';
+import { Logger, Level } from './logger';
 
 export class Fig {
 
+    readonly DEFAULT_TEMPLATE_DIR = '.fig/template';
+    readonly DEFAULT_HTML_TEMPLATE = 'index.html';
+    readonly DEFAULT_OUTPUT_FORMAT = 'jpg';
     readonly TEMP_DIRECTORY: string = 'tmp';
-    readonly OUTPUT_DIRECTORY: string = 'out';
     readonly VIEWPORT: Viewport = {
         width: 1200,
         height: 600,
@@ -22,43 +26,56 @@ export class Fig {
         this.logger = new Logger(logLevel);
     }
 
-    async generateImage({ title, date, author, pathToAuthorImage, pathToHtmlTemplate, pathToCss, output }: Options) {
-        this.makeDirectory(`${__dirname}/${this.TEMP_DIRECTORY}`);
-        const htmlTemplateFile = this.copyResourceToTmp(pathToHtmlTemplate);
-        const authorImageFile = this.copyResourceToTmp(pathToAuthorImage);
-        const cssFile = this.copyResourceToTmp(pathToCss);
-        const html = this.buildHtml(htmlTemplateFile, authorImageFile, cssFile, title, date, author);
-        const titleSlug = `${slugify(title, { replacement: '_', remove: /[*+~.()'"!?:@]/g, lower: true })}`;    
-        const htmlFile = this.writeResourceToTmp(titleSlug, html);
-        const outputDirectory = this.getOutpuDirectory(output);
-        const outputFilename = this.getOutputFilename(titleSlug, output);
-        await this.generateFeatureImage(htmlFile, outputDirectory, outputFilename);
+    async generateImage({ title, date, author, pathToTemplate, output }: Options): Promise<string> {
+        const tempDir = `${__dirname}/${this.TEMP_DIRECTORY}`;
+
+        try {
+            this.deleteDirectory(tempDir);
+            this.makeDirectory(tempDir);
+            const defaultDir = `${this.getHomeDirectory()}/${this.DEFAULT_TEMPLATE_DIR}`;
+            const pathToTmpTemplate = this.copyResourceToTmp(pathToTemplate, defaultDir);
+            const pathToTmpHtmlTemplate = `${pathToTmpTemplate}/${this.DEFAULT_HTML_TEMPLATE}`;
+
+            const html = this.buildHtml(pathToTmpHtmlTemplate, title, date, author);
+            const titleSlug = `${slugify(title, { replacement: '_', remove: /[*+~.()'"!?:@]/g, lower: true })}`;    
+            const htmlFile = this.writeResourceToTmp(titleSlug, html);
+            const outputDirectory = this.getOutpuDirectory(output);
+            const outputFilename = this.getOutputFilename(titleSlug, output);
+            const outputFilepath = `${outputDirectory}/${outputFilename}`;
+            await this.generateFeatureImage(htmlFile, outputFilepath);
+            return outputFilepath;
+        } catch (e) {
+            this.logger.error(`Error generating image: ${e}`);
+            return null;
+        } finally {
+            this.deleteDirectory(tempDir);
+        }
     }
 
     private getOutputFilename(titleSlug: string, outputFile: string): string {
-        let outputFilename;
+        let outputFilename: string;
 
         if (outputFile) {
             outputFilename = path.basename(outputFile);
         } else {
-            titleSlug;
+            outputFilename = `${titleSlug}.${this.DEFAULT_OUTPUT_FORMAT}`;
         }
         return outputFilename;
     }
 
     private getOutpuDirectory(outputFile: string): string {
-        let output;
+        let output: string;
 
         if (outputFile) {
             output = path.dirname(outputFile);
+            this.makeDirectory(output);
         } else {
-            output = `${__dirname}/${this.OUTPUT_DIRECTORY}`;
+            output = process.cwd();
         }
-        this.makeDirectory(output);
         return output;
     }
 
-    private async generateFeatureImage(htmlFile: string, outputDirectory: string, outputFile: string) {
+    private async generateFeatureImage(htmlFile: string, outputFilePath: string) {
         let browser: Browser = null;
         
         try {
@@ -66,7 +83,7 @@ export class Fig {
             const page: Page = await browser.newPage();
             await page.setViewport(this.VIEWPORT)
             await page.goto(`file://${htmlFile}`);
-            await page.screenshot({ path: `${outputDirectory}/${outputFile}`})
+            await page.screenshot({ path: outputFilePath})
         } catch(e) {
             this.logger.error(`Error generating feature image: ${e}`);
         } finally {
@@ -74,20 +91,41 @@ export class Fig {
         }
     }
 
-    private makeDirectory(directory) {
+    private makeDirectory(directory: string) {
         try {
-            this.logger.debug(`Making directory: ${directory}`);
-            fs.mkdirSync(`${directory}`);
+        
+            if (!fs.existsSync(directory)) {
+                this.logger.debug(`Making directory: ${directory}`);
+                fs.mkdirSync(directory);
+            }
         } catch (e) {
             this.logger.debug(e);
         }
     }
 
-    private copyResourceToTmp(pathToFile: string): string {
-        let filename = path.basename(pathToFile);
-        let pathToTempFile = `${__dirname}/${this.TEMP_DIRECTORY}/${filename}`;
-        fs.copyFileSync(pathToFile, pathToTempFile);
-        return pathToTempFile;
+    private deleteDirectory(directory: string) {
+        try {
+
+            if (fs.existsSync(directory)) {
+                this.logger.debug(`Deleting directory: ${directory}`);
+                fs.rmSync(directory, { recursive: true, force: true });
+            }
+        } catch (e) {
+            this.logger.debug(e);
+        }
+    }
+
+    private getHomeDirectory(): string {
+        return os.homedir();
+    }
+
+    private copyResourceToTmp(specifiedPath: string, defaultPath: string): string {
+        const path = specifiedPath != null ? specifiedPath + '/' : defaultPath + '/';
+        const pathToTempDir: string = `${__dirname}/${this.TEMP_DIRECTORY}/`;
+        this.logger.debug(`Copying ${path} to ${pathToTempDir}`);
+        copyDir.sync(path, pathToTempDir);
+        //fs.copyFileSync(path, pathToTempDir);
+        return pathToTempDir;
     }
 
     private writeResourceToTmp(filename: string, data: string): string {
@@ -96,10 +134,10 @@ export class Fig {
         return pathToTempFile;
     }
 
-    private buildHtml(htmlFile: string, authorImageFile: string, cssFile: string, title: string, dateStr: string, 
+    private buildHtml(htmlFile: string, title: string, dateStr: string, 
         author: string): string {
         const date = moment(dateStr);
-        const html = fs.readFileSync(`${htmlFile}`).toString()
+        const html = fs.readFileSync(htmlFile).toString()
             .replace('[[TITLE]]', title)
             .replace('[[AUTHOR]]', author)
             .replace('[[DATE]]', date.format('MMM Do'));
@@ -111,8 +149,6 @@ export interface Options {
     title: string;
     date: string;
     author: string;
-    pathToAuthorImage: string;
-    pathToHtmlTemplate: string;
-    pathToCss: string;
+    pathToTemplate: string;
     output: string
 }
