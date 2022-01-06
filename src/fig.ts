@@ -1,18 +1,18 @@
-import fs from "fs";
-import copyDir from "copy-dir";
-import os from "os";
-import path from "path";
-import moment from "moment";
-import slugify from "slugify";
-import puppeteer from "puppeteer";
-import { Browser, Page, Viewport } from "puppeteer";
-import { Logger, Level } from "./logger";
+import fs from 'fs';
+import copyDir from 'copy-dir';
+import os from 'os';
+import path from 'path';
+import moment from 'moment';
+import slugify from 'slugify';
+import puppeteer from 'puppeteer';
+import { Browser, Page, Viewport } from 'puppeteer';
+import { Logger, Level } from './logger';
 
 export class Fig {
-  readonly DEFAULT_TEMPLATE_DIR = ".fig/template";
-  readonly DEFAULT_HTML_TEMPLATE = "index.html";
-  readonly DEFAULT_OUTPUT_FORMAT = "jpg";
-  readonly TEMP_DIRECTORY: string = "tmp";
+  readonly DEFAULT_TEMPLATE_DIR = '.fig/template';
+  readonly DEFAULT_HTML_TEMPLATE = 'index.html';
+  readonly DEFAULT_OUTPUT_FORMAT = 'jpg';
+  readonly TEMP_DIRECTORY: string = 'tmp';
   readonly VIEWPORT: Viewport = {
     width: 1200,
     height: 600,
@@ -36,7 +36,7 @@ export class Fig {
       const pathToTmpHtmlTemplate = `${pathToTmpTemplate}/${this.DEFAULT_HTML_TEMPLATE}`;
 
       const html = this.buildHtml(pathToTmpHtmlTemplate, title, date, author);
-      const titleSlug = `${slugify(title, { replacement: "_", remove: /[*+~.()'"!?:@]/g, lower: true })}`;
+      const titleSlug = `${slugify(title, { replacement: '_', remove: /[*+~.()'"!?:@]/g, lower: true })}`;
       const htmlFile = this.writeResourceToTmp(titleSlug, html);
       const outputDirectory = this.getOutpuDirectory(output);
       const outputFilename = this.getOutputFilename(titleSlug, output);
@@ -117,7 +117,7 @@ export class Fig {
   }
 
   private copyResourceToTmp(specifiedPath: string, defaultPath: string): string {
-    const path = specifiedPath != null ? specifiedPath + "/" : defaultPath + "/";
+    const path = specifiedPath != null ? specifiedPath + '/' : defaultPath + '/';
     const pathToTempDir: string = `${__dirname}/${this.TEMP_DIRECTORY}/`;
     this.logger.debug(`Copying ${path} to ${pathToTempDir}`);
     copyDir.sync(path, pathToTempDir);
@@ -136,9 +136,9 @@ export class Fig {
     const html = fs
       .readFileSync(htmlFile)
       .toString()
-      .replace("[[TITLE]]", title)
-      .replace("[[AUTHOR]]", author)
-      .replace("[[DATE]]", date.format("MMM Do"));
+      .replace('[[TITLE]]', title)
+      .replace('[[AUTHOR]]', author)
+      .replace('[[DATE]]', date.format('MMM Do'));
     return html;
   }
 }

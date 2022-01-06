@@ -1,6 +1,6 @@
-import matter from "gray-matter";
-import fs from "fs";
-import { Logger, Level } from "./logger";
+import matter from 'gray-matter';
+import fs from 'fs';
+import { Logger, Level } from './logger';
 
 export class FmParser {
   logger: Logger;
@@ -18,7 +18,7 @@ export class FmParser {
     let parsed = matter(content).data;
 
     if (!parsed) {
-      throw new Error("Frontmatter parsing failed!");
+      throw new Error('Frontmatter parsing failed!');
     }
     this.logger.debug(`Frontmatter data: ${JSON.stringify(parsed)}`);
 
@@ -34,7 +34,7 @@ export class FmParser {
 
     try {
       this.logger.debug(`Reading file contents of ${file}`);
-      contents = fs.readFileSync(file, "utf8").toString();
+      contents = fs.readFileSync(file, 'utf8').toString();
     } catch (e) {
       this.logger.error(`Error loading ${file}: ${e}`);
     }

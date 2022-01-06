@@ -1,42 +1,42 @@
 #!/usr/bin/env node
 
-import { Command } from "commander";
-import { Fig } from "./fig";
-import { Level, Logger } from "./logger";
-import { version } from "../package.json";
-import { FmParser, Metadata } from "./fm-parser";
+import { Command } from 'commander';
+import { Fig } from './fig';
+import { Level, Logger } from './logger';
+import { version } from '../package.json';
+import { FmParser, Metadata } from './fm-parser';
 
 const program = new Command();
 
 program
   .version(version)
   .description(
-    "Fig is a utility that generates feature images for website articles. The images can be used for sharing the article on social media.",
+    'Fig is a utility that generates feature images for website articles. The images can be used for sharing the article on social media.',
   );
 
 program
-  .command("fm <input>")
-  .description("Generates an image by parsing metadata from the frontmatter in the input file")
-  .option("-o, --output <name and path to output>", "Name and path of the output file, append with .jpg or .png")
-  .option("-v, --verbose", "Turns on verbose logging")
+  .command('fm <input>')
+  .description('Generates an image by parsing metadata from the frontmatter in the input file')
+  .option('-o, --output <name and path to output>', 'Name and path of the output file, append with .jpg or .png')
+  .option('-v, --verbose', 'Turns on verbose logging')
   .option(
-    "-h, --html-template <path to the folder containing index.html>",
-    "Path to index.html template used to generate your feature image",
+    '-h, --html-template <path to the folder containing index.html>',
+    'Path to index.html template used to generate your feature image',
   )
   .action((input, options) => processFrontmatterInput(input, options));
 
 program
-  .command("args")
-  .description("Generates an image using the options specified")
-  .requiredOption("-t, --title <title>", "Title of the article")
-  .requiredOption("-d, --date <date>", "Date the article was published")
-  .requiredOption("-a, --author <author>", "Author of the article")
+  .command('args')
+  .description('Generates an image using the options specified')
+  .requiredOption('-t, --title <title>', 'Title of the article')
+  .requiredOption('-d, --date <date>', 'Date the article was published')
+  .requiredOption('-a, --author <author>', 'Author of the article')
   .option(
-    "-h, --html-template <path to the folder containing index.html>",
-    "Path to index.html template used to generate your feature image",
+    '-h, --html-template <path to the folder containing index.html>',
+    'Path to index.html template used to generate your feature image',
   )
-  .option("-o, --output <name and path to output>", "Name and path of the output file, append with .jpg or .png")
-  .option("-v, --verbose", "Turns on verbose logging")
+  .option('-o, --output <name and path to output>', 'Name and path of the output file, append with .jpg or .png')
+  .option('-v, --verbose', 'Turns on verbose logging')
   .action((options) => processArgumentInput(options));
 
 program.parse(process.argv);
